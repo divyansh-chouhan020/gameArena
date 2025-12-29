@@ -9,7 +9,7 @@ const reviewAndRatingSchema = new mongoose.Schema(
     },
     review: {
       type: String,
-      required: false,
+      required: true,
       trim: true,
       min: 5,
       max: 500,

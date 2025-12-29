@@ -44,6 +44,15 @@ const gameSchema = new mongoose.Schema(
       enum: ["approved", "pending"],
       default: "pending",
     },
+    averageRating: {
+      type: Number,
+      default: 0,
+      max: 5,
+    },
+    totalReviews: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

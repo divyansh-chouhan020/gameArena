@@ -4,5 +4,6 @@
 // TODO : Implementing Notification system to notify users when their game is approved
 // TODO : Implementing middleware to check the role of user an authorize access to certain routes --Completed(27/12/2025)
 // TODO : Implement Schema validation for game creation and updation
-// TODO : Implementing reviews and rating feature
+// TODO : Implementing reviews and rating feature -- completed (02/01/2026)
+// TODO : Implementing Update and Delete functionality for reviews and ratings -- completed (04/01/2026)
 // TODO : Implement Listing for purchase/my games.

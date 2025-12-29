@@ -9,6 +9,11 @@ const {
   updateGame,
 } = require("../controller/game.controller");
 const { protectRoute, authorizeRoles } = require("../middleware/auth");
+const {
+  deleteReviewAndRating,
+  updateReviewAndRating,
+  createReviewAndRating,
+} = require("../controller/review.controller");
 const gameRouter = express.Router();
 //create game
 gameRouter.use(protectRoute);
@@ -23,6 +28,14 @@ gameRouter
   .get(authorizeRoles(["developer"]), listOfGameForDevelopers);
 gameRouter.route("/:id").patch(authorizeRoles(["developer"]), updateGame);
 gameRouter.route("/:id").delete(authorizeRoles(["developer"]), deleteGame);
+
+//review routes
+gameRouter.route("/review").post(createReviewAndRating);
+
+gameRouter
+  .route("/review/:id")
+  .patch(updateReviewAndRating)
+  .delete(deleteReviewAndRating);
 // gameRouter.route("/").get(listAllGame);
 
 module.exports = gameRouter;
