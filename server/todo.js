@@ -8,7 +8,7 @@
 // TODO : Implementing Update and Delete functionality for reviews and ratings -- completed (04/01/2026)
 // TODO : Implement Listing for purchase/my games.
 // TODO : Player/Developer Stats 
-// TODO : User profile get Details -- Completed
+// TODO : User profile get Details -- Completed(31/12/2025)
 // TODO : Add indexing in MongoDb
 // TODO : Total PlayedBY in gameModel
 // TODO : Implement List of Trending Games,Freture Games,latest Game
