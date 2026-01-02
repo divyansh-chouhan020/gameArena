@@ -5,9 +5,21 @@ const mongoose = require("mongoose");
 const authRouter = require("./routes/auth.route");
 const gameRouter = require("./routes/gaming.route");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const userRouter = require("./routes/user.route");
 
 const port = 5001;
+// CORS configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "http://localhost:3000", 
+  credentials: true, // Allow cookies to be sent
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 const app = express();
 app.use(express.json());
