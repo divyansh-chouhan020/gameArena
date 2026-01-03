@@ -3,12 +3,10 @@ import { useState, useEffect } from "react";
 import { Box, Container, Typography, Link, CssBaseline, ThemeProvider } from "@mui/material";
 import Cookies from "js-cookie";
 import { useDispatch, useSelector } from "react-redux";
-
 import Layout from "@/components/common/layoutComponent";
 import { InputField, Button, Toast, Loader } from "@/components/common/uiComponents";
 import { setTheme } from "@/redux/slices/themeSlice";
 import { lightTheme, darkTheme } from "@/styles/mui/theme";
-
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const validateEmail = (email) => {
