@@ -66,19 +66,6 @@ function NavBar({ filters, onFilterChange }) {
           {NAV_LINKS.map(({ label, action }) => (
             <Typography key={label} component="a" onClick={(e) => { e.preventDefault(); action(router); }} sx={baseStyle}>{label}</Typography>
           ))}
-          
-          {filters && onFilterChange && (
-            <>
-              <TextField label="Search" value={filters.keyword || ""} onChange={(e) => onFilterChange("keyword", e.target.value)} size="small" sx={{ minWidth: "150px", maxWidth: "200px", "& .MuiOutlinedInput-root": { backgroundColor: muiTheme.palette.background.paper } }} />
-              <FormControl size="small" sx={{ minWidth: "120px", maxWidth: "150px" }}>
-                <InputLabel>Genre</InputLabel>
-                <Select value={filters.genre || ""} label="Genre" onChange={(e) => onFilterChange("genre", e.target.value)} sx={{ backgroundColor: muiTheme.palette.background.paper }}>
-                  <MenuItem value="">All</MenuItem>
-                  {GENRES.map((g) => <MenuItem key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</MenuItem>)}
-                </Select>
-              </FormControl>
-            </>
-          )}
         </Box>
 
         <Box display="flex" gap="12px" alignItems="center" flexWrap="wrap">
