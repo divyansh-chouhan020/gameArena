@@ -1,4 +1,5 @@
 const gameModel = require("../model/game.model");
+const userFavouriteModel = require("../model/user.favourite");
 const userModel = require("../model/user.model");
 const { sendEmail } = require("../utils/utility");
 //Create a new game
@@ -67,10 +68,10 @@ const listAllGame = async (req, res) => {
     // TODO: imlement date filter
     //filter object
     const where = {
-      // genre,
-      // status,
-      title: { $regex: keyword || "", $options: "i" },
-      // desc: { $regex: keyword || "", $options: "i" },
+      $or: [
+        { title: { $regex: keyword || "", $options: "i" } },
+        { desc: { $regex: keyword || "", $options: "i" } },
+      ],
     };
     if (genre) {
       where.genre = genre;
@@ -345,6 +346,19 @@ const playGame = async (req, res) => {
       });
     }
     const game = await gameModel.findById(gameId).lean();
+    if (!game) {
+      return res.status(404).json({
+        success: false,
+        message: "Game not found",
+      });
+    }
+    if (game.isFree === false && user.suscription === "free") {
+      return res.status(403).json({
+        success: false,
+        message: "You need premium subscription to play this game",
+        error: "Forbidden",
+      });
+    }
     const userId = req.user;
     const temp = game.playedBy.map((id) => id.toString()); // normalize existing to string
     temp.push(userId);
@@ -371,7 +385,8 @@ const trendingGames = async (req, res) => {
   try {
     //to do
     const games = await gameModel
-      .find({ status: "approved" }).populate("createdBy", "name email")
+      .find({ status: "approved" })
+      .populate("createdBy", "name email")
       .sort({ totalPlayedBy: -1 })
       .limit(10);
     return res.status(200).json({
@@ -390,14 +405,14 @@ const trendingGames = async (req, res) => {
 const popularGames = async (req, res) => {
   try {
     const games = await gameModel
-      .find({ status: "approved" }).populate("createdBy", "name email")
+      .find({ status: "approved" })
+      .populate("createdBy", "name email")
       .sort({ averageRating: -1 })
       .limit(10);
     return res.status(200).json({
       success: true,
       data: games,
     });
-
   } catch (err) {
     console.log("controller@popularGames", err.message);
     return res.status(500).json({
@@ -427,6 +442,105 @@ const latestGames = async (req, res) => {
     });
   }
 };
+const addToFavourite = async (req, res) => {
+  try {
+    const { gameId } = req.body;
+    if (!gameId) {
+      return res.status(400).json({
+        success: false,
+        message: "Game ID is required",
+      });
+    }
+    const game = await gameModel.findById(gameId);
+    if (!game) {
+      return res.status(404).json({
+        success: false,
+        message: "Game not found",
+      });
+    }
+    const existingfavourite = await userFavouriteModel.findOne({
+      user: req.user,
+      game: gameId,
+    });
+    if (existingfavourite) {
+      return res.status(400).json({
+        success: false,
+        message: "Game already in favourites",
+      });
+    }
+    const favourite = await userFavouriteModel.create({
+      user: req.user,
+      game: gameId,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Game added to favourites",
+      data: favourite,
+    });
+  } catch (err) {
+    console.log("controller@addToFavourite", err.message);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+      error: "Internal Server Error",
+    });
+  }
+};
+const removeFromFavourite = async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    if (!gameId) {
+      return res.status(400).json({
+        success: false,
+        message: "Game ID is required",
+        error: "Bad Request",
+      });
+    }
+    const favourite = await userFavouriteModel.findOneAndDelete({
+      user: req.user,
+      game: gameId,
+    });
+    if (!favourite) {
+      return res.status(404).json({
+        success: false,
+        message: "Favourite not found",
+        error: "Not Found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Game removed from favourites",
+    });
+  } catch (err) {
+    console.log("controller@removeFromFavourite", err.message);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+      error: "Internal Server Error",
+    });
+  }
+};
+const listFavouriteGames = async (req, res) => {
+  try {
+    const favourites = await userFavouriteModel
+      .find({ user: req.user })
+      .populate("game")
+      .sort({ createdAt: -1 });
+    return res.status(200).json({
+      success: true,
+      data: favourites,
+    });
+  } catch (err) {
+    console.log("controller@listFavouriteGames", err.message);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+      error: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   createGame,
   listAllGame,
@@ -439,4 +553,7 @@ module.exports = {
   trendingGames,
   popularGames,
   latestGames,
+  addToFavourite,
+  removeFromFavourite,
+  listFavouriteGames,
 };

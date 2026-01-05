@@ -10,6 +10,7 @@ const getUser = async (req, res) => {
         error: "Not Found",
       });
     }
+    console.log("controller@getUser", user);
 
     return res.status(200).json({
       success: true,

@@ -13,9 +13,9 @@
 
 
 // TODO : Total PlayedBY in gameModel--completed(4/01/2026)
-// TODO : Implement List of Trending Games,Freture Games,latest Game --
-// TODO : Implement Play Game API
-// TODO : Implement List of all aprroved games by admim
-// TODO : Implement free And prenium game in game model
-// TODO : Implement Listing for purchase/my games.
+// TODO : Implement List of Trending Games,Freture Games,latest Game --completed(05/01/2026)
+// TODO : Implement Play Game API (implemented suscription check here)--completed(05/01/2026)
+// TODO : Implement List of all aprroved games by admim (can use list all games api with filter)
+// TODO : Implement free And prenium game in game model--completed(05/01/2026)
+// TODO : Implement  addToFavourites, removeFromFavourites and listFavouriteGames for user-- completed(05/01/2026)
 // TODO : Player/Developer Stats (Total Uploads , Follower and list of games uploaded or played in case of user)

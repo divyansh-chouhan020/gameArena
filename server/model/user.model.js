@@ -34,7 +34,12 @@ const userSchema = new mongoose.Schema(
     },
     dob:{
         type:Date,
-    }
+    },
+    suscription: {
+      type: String,
+      enum: ["free", "premium"],
+      default: "free",
+    },
   },
   { timestamps: true }
 );

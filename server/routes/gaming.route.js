@@ -11,6 +11,9 @@ const {
   trendingGames,
   popularGames,
   latestGames,
+  listFavouriteGames,
+  addToFavourite,
+  removeFromFavourite,
 } = require("../controller/game.controller");
 const { protectRoute, authorizeRoles } = require("../middleware/auth");
 const {
@@ -44,7 +47,9 @@ gameRouter
   .delete(deleteReviewAndRating);
 // gameRouter.route("/").get(listAllGame);
 gameRouter.route("/trending").get(trendingGames);
-gameRouter.route("/popular").get(popularGames); 
+gameRouter.route("/popular").get(popularGames);
 gameRouter.route("/latest").get(latestGames);
+gameRouter.route("/favourite").get(listFavouriteGames).post(addToFavourite);
+gameRouter.route("/favourite/:gameId").delete(removeFromFavourite);
 
 module.exports = gameRouter;
