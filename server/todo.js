@@ -12,8 +12,8 @@
 // TODO : Implement totalPlayedByCount of Count --completed(4/01/20)
 
 
-// TODO : Total PlayedBY in gameModel
-// TODO : Implement List of Trending Games,Freture Games,latest Game
+// TODO : Total PlayedBY in gameModel--completed(4/01/2026)
+// TODO : Implement List of Trending Games,Freture Games,latest Game --
 // TODO : Implement Play Game API
 // TODO : Implement List of all aprroved games by admim
 // TODO : Implement free And prenium game in game model

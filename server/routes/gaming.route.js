@@ -8,6 +8,9 @@ const {
   deleteGame,
   updateGame,
   playGame,
+  trendingGames,
+  popularGames,
+  latestGames,
 } = require("../controller/game.controller");
 const { protectRoute, authorizeRoles } = require("../middleware/auth");
 const {
@@ -40,5 +43,8 @@ gameRouter
   .patch(updateReviewAndRating)
   .delete(deleteReviewAndRating);
 // gameRouter.route("/").get(listAllGame);
+gameRouter.route("/trending").get(trendingGames);
+gameRouter.route("/popular").get(popularGames); 
+gameRouter.route("/latest").get(latestGames);
 
 module.exports = gameRouter;

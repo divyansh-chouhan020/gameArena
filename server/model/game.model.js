@@ -60,6 +60,10 @@ const gameSchema = new mongoose.Schema(
       required: true,
       
     },
+    totalPlayedBy: {
+      type: Number,
+      default: 0,
+    },
     
 
   },

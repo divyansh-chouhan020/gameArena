@@ -336,31 +336,28 @@ const updateGame = async (req, res) => {
 };
 const playGame = async (req, res) => {
   try {
-    const { gameId} = req.body;
+    const { gameId } = req.body;
 
-    if (!gameId ) {
+    if (!gameId) {
       return res.status(400).json({
         success: false,
         message: "Game ID  is required",
       });
     }
-    const game = await gameModel.findById(gameId);
+    const game = await gameModel.findById(gameId).lean();
     const userId = req.user;
-    const temp =game.playedBy
+    const temp = game.playedBy.map((id) => id.toString()); // normalize existing to string
     temp.push(userId);
     const uniquePlayedBy = [...new Set(temp)];
-    game.playedBy = uniquePlayedBy;
 
-    game.totalPlayedBy = uniquePlayedBy.length;
-    console.log("")
-
-
-    await game.save();
+    await gameModel.findByIdAndUpdate(gameId, {
+      playedBy: uniquePlayedBy,
+      totalPlayedBy: uniquePlayedBy.length,
+    });
 
     return res.status(200).json({
       success: true,
       message: "Play count updated",
-      data: game.totalPlayedBy,
     });
   } catch (err) {
     return res.status(500).json({
@@ -370,8 +367,66 @@ const playGame = async (req, res) => {
     });
   }
 };
+const trendingGames = async (req, res) => {
+  try {
+    //to do
+    const games = await gameModel
+      .find({ status: "approved" }).populate("createdBy", "name email")
+      .sort({ totalPlayedBy: -1 })
+      .limit(10);
+    return res.status(200).json({
+      success: true,
+      data: games,
+    });
+  } catch (err) {
+    console.log("controller@trendingGames", err.message);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+      error: "Internal Server Error",
+    });
+  }
+};
+const popularGames = async (req, res) => {
+  try {
+    const games = await gameModel
+      .find({ status: "approved" }).populate("createdBy", "name email")
+      .sort({ averageRating: -1 })
+      .limit(10);
+    return res.status(200).json({
+      success: true,
+      data: games,
+    });
 
-
+  } catch (err) {
+    console.log("controller@popularGames", err.message);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+      error: "Internal Server Error",
+    });
+  }
+};
+const latestGames = async (req, res) => {
+  try {
+    const games = await gameModel
+      .find({ status: "approved" })
+      .populate("createdBy", "name email")
+      .sort({ createdAt: -1 })
+      .limit(2);
+    return res.status(200).json({
+      success: true,
+      data: games,
+    });
+  } catch (err) {
+    console.log("controller@latestGames", err.message);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+      error: "Internal Server Error",
+    });
+  }
+};
 module.exports = {
   createGame,
   listAllGame,
@@ -381,4 +436,7 @@ module.exports = {
   deleteGame,
   updateGame,
   playGame,
+  trendingGames,
+  popularGames,
+  latestGames,
 };
