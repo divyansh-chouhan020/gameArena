@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { CssBaseline, ThemeProvider, AppBar, Toolbar, Typography, IconButton, Box, TextField, FormControl, InputLabel, Select, MenuItem, Link } from "@mui/material";
+import { CssBaseline, ThemeProvider, AppBar, Toolbar, Typography, IconButton, Box, TextField, FormControl, InputLabel, Select, MenuItem, Link, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -23,8 +23,8 @@ const NAV_LINKS = [
 ];
 
 const ROLE_BUTTONS = {
-  user: [["Games", "secondary", "/"], ["Profile", "primary", "/user/profile"]],
-  developer: [["Dashboard", "secondary", "/developer/dashboard"], ["Upload Game", "primary", "/developer/upload"]],
+  user: [["Games", "secondary", "/user/home"], ["Profile", "primary", "/user/profile"]],
+  developer: [["Home", "secondary", "/developer/developer_home"], ["Dashboard", "secondary", "/developer/dashboard"], ["Upload Game", "primary", "/developer/upload"]],
   admin: [["Admin Panel", "primary", "/admin"]],
 };
 
@@ -38,6 +38,7 @@ function NavBar({ filters, onFilterChange }) {
   const { isAuthenticated, role } = useSelector((state) => state.auth);
   const muiTheme = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -66,6 +67,7 @@ function NavBar({ filters, onFilterChange }) {
           {NAV_LINKS.map(({ label, action }) => (
             <Typography key={label} component="a" onClick={(e) => { e.preventDefault(); action(router); }} sx={baseStyle}>{label}</Typography>
           ))}
+          
         </Box>
 
         <Box display="flex" gap="12px" alignItems="center" flexWrap="wrap">
@@ -82,11 +84,44 @@ function NavBar({ filters, onFilterChange }) {
           ) : (
             <>
               {ROLE_BUTTONS[role]?.map(([label, variant, href]) => <Button key={label} label={label} variant={variant} onClick={() => router.push(href)} />)}
-              <Button label="Logout" variant="secondary" onClick={handleLogout} />
+              <Button label="Logout" variant="secondary" onClick={() => setLogoutDialogOpen(true)} />
             </>
           )}
         </Box>
       </Toolbar>
+
+      <Dialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            background: muiTheme.palette.background.paper,
+            color: muiTheme.palette.text.primary,
+            border: `1px solid ${isDark ? "rgba(56,189,248,0.25)" : "rgba(56,189,248,0.2)"}`,
+          },
+        }}
+      >
+        <DialogTitle>Confirm Logout</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: muiTheme.palette.text.secondary }}>
+            Are you sure you want to quit?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            label="Cancel"
+            variant="secondary"
+            onClick={() => setLogoutDialogOpen(false)}
+          />
+          <Button
+            label="Yes"
+            onClick={() => {
+              setLogoutDialogOpen(false);
+              handleLogout();
+            }}
+          />
+        </DialogActions>
+      </Dialog>
     </AppBar>
   );
 }
