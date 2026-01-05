@@ -7,7 +7,7 @@ const { sendEmail } = require("../utils/utility");
 const createGame = async (req, res) => {
   try {
     console.log("value", req.user);
-    const { title, genre, desc } = req.body;
+    const { title, genre, desc, isFree = false } = req.body;
     if (!title || !genre || !desc) {
       return res.status(400).json({
         success: false,
@@ -41,6 +41,7 @@ const createGame = async (req, res) => {
       desc,
       createdBy: req.user,
       status: "pending",
+      isFree: isFree ,
     });
     return res.status(200).json({
       sucess: true,
