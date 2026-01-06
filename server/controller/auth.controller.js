@@ -17,7 +17,7 @@ const login = async (req, res) => {
         email,
       })
       .select("+password");
-      console.log(existingUser);
+    console.log(existingUser);
     if (!existingUser) {
       return res.status(404).json({
         success: false,
@@ -38,7 +38,7 @@ const login = async (req, res) => {
       process.env.JWT_SECRET
     );
     res.cookie("token", token, {
-      maxAge: 1000 * 60 *60,
+      maxAge: 1000 * 60 * 60,
       httpOnly: true,
     });
     return res.status(200).json({
@@ -84,7 +84,7 @@ const signup = async (req, res) => {
     });
     const token = await jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
     res.cookie("token", token, {
-      maxAge: 1000 * 60 *60,
+      maxAge: 1000 * 60 * 60,
       httpOnly: true,
     });
     const userData = newUser.toObject();
@@ -121,7 +121,41 @@ const logout = async (req, res) => {
     });
   }
 };
-
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "please enter email",
+      error: "Bad Request",
+    });
+  }
+  const checkEmail = await userModel.find({ email });
+  if (!checkEmail) {
+    return res.status(400).json({
+      success: false,
+      message: "User not Exist",
+      error: "Bad Request",
+    });
+  }
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  // Hash OTP
+  const hashedOtp = await bcrypt.hash(otp, 10);
+  user.forgotPasswordOtp = hashedOtp;
+  user.forgotPasswordOtpExpiry = Date.now() + 5 * 60 * 1000;
+  user.isForgotPasswordOtpVerified = false;
+  await user.save();
+   // Send OTP via email
+    await sendEmail({
+      to: email,
+      subject: "Password Reset OTP",
+      text: `Your OTP for resetting your password is: ${otp}\nThis OTP is valid for 5 minutes.`,
+    });
+     return res.status(200).json({
+      success: true,
+      message: "Otp Send Sucessfully",
+    });
+};
 
 module.exports = {
   login,

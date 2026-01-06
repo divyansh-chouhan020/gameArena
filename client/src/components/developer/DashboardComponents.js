@@ -1,5 +1,5 @@
 import { useTheme } from "@mui/material/styles";
-import { Typography, Grid, Box, Table, TableBody, TableCell, TableHead, TableRow, TableContainer } from "@mui/material";
+import { Typography, Grid, Box, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Chip } from "@mui/material";
 import { Card } from "@/components/common/ui/uiComponents";
 
 export function DashboardTitle({ children }) {
@@ -62,7 +62,7 @@ export function DashboardStats({ stats }) {
   );
 }
 
-export function DashboardTable({ games }) {
+export function DashboardTable({ games, onGameClick }) {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
 
@@ -77,6 +77,7 @@ export function DashboardTable({ games }) {
     color: isDark ? "#e2e8f0" : theme.palette.text.primary,
     fontSize: { xs: "0.875rem", md: "1rem" },
     py: { xs: 1.5, md: 2 },
+    cursor: onGameClick ? "pointer" : "default",
   };
 
   const secondaryCellStyles = {
@@ -84,6 +85,18 @@ export function DashboardTable({ games }) {
     fontSize: { xs: "0.875rem", md: "1rem" },
     py: { xs: 1.5, md: 2 },
   };
+
+  if (!games || games.length === 0) {
+    return (
+      <Card>
+        <Box sx={{ p: { xs: 2, md: 3 }, textAlign: "center" }}>
+          <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
+            No games yet. Upload your first game to get started!
+          </Typography>
+        </Box>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -93,26 +106,37 @@ export function DashboardTable({ games }) {
             <TableHead>
               <TableRow>
                 <TableCell sx={cellStyles}>Title</TableCell>
+                <TableCell sx={cellStyles}>Status</TableCell>
                 <TableCell sx={cellStyles}>Plays</TableCell>
-                <TableCell sx={cellStyles}>Earnings</TableCell>
                 <TableCell sx={cellStyles}>Ratings</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {games.map((game) => (
                 <TableRow
-                  key={game.title}
+                  key={game._id || game.title}
                   hover
+                  onClick={() => onGameClick && onGameClick(game)}
                   sx={{
                     "&:hover": {
                       backgroundColor: isDark ? "rgba(56, 189, 248, 0.08)" : "rgba(56, 189, 248, 0.04)",
                     },
+                    cursor: onGameClick ? "pointer" : "default",
                   }}
                 >
                   <TableCell sx={bodyCellStyles}>{game.title}</TableCell>
+                  <TableCell sx={secondaryCellStyles}>
+                    <Chip
+                      label={game.status || "pending"}
+                      size="small"
+                      color={game.status === "approved" ? "success" : "warning"}
+                      sx={{ textTransform: "capitalize" }}
+                    />
+                  </TableCell>
                   <TableCell sx={secondaryCellStyles}>{game.plays.toLocaleString()}</TableCell>
-                  <TableCell sx={secondaryCellStyles}>${game.earnings.toFixed(2)}</TableCell>
-                  <TableCell sx={secondaryCellStyles}>{game.ratings.toFixed(1)}</TableCell>
+                  <TableCell sx={secondaryCellStyles}>
+                    {game.ratings > 0 ? game.ratings.toFixed(1) : "N/A"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

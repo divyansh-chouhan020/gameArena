@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Container, Typography, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Card, InputField, Button, Toast } from "@/components/common/ui/uiComponents";
+import { userAPI } from "@/services/api";
 
 export function ProfilePageTitle({ children }) {
   return (
@@ -59,8 +60,43 @@ export function useProfileForm(initialUserData = { name: "", email: "", age: "" 
   const [passwordData, setPasswordData] = useState({ newPassword: "", confirmPassword: "" });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [userId, setUserId] = useState(null);
 
-  const handlePasswordChange = () => {
+  const handleUserUpdate = async () => {
+    if (!userId) {
+      setError("User ID not found");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await userAPI.updateUser(userId, {
+        name: userData.name,
+        email: userData.email,
+        age: userData.age ? parseInt(userData.age) : undefined,
+      });
+
+      if (response?.success) {
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(response?.message || "Failed to update profile");
+      }
+    } catch (err) {
+      setError(err.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (!userId) {
+      setError("User ID not found");
+      return;
+    }
+
     if (!passwordData.newPassword || !passwordData.confirmPassword) {
       setError("All fields are required");
       return;
@@ -73,10 +109,26 @@ export function useProfileForm(initialUserData = { name: "", email: "", age: "" 
       setError("Passwords do not match");
       return;
     }
-    // TODO: Call API to change password
-    setSuccess(true);
-    setPasswordData({ newPassword: "", confirmPassword: "" });
-    setTimeout(() => setSuccess(false), 3000);
+
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await userAPI.updateUser(userId, {
+        password: passwordData.newPassword,
+      });
+
+      if (response?.success) {
+        setSuccess(true);
+        setPasswordData({ newPassword: "", confirmPassword: "" });
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(response?.message || "Failed to change password");
+      }
+    } catch (err) {
+      setError(err.message || "Failed to change password");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
@@ -88,11 +140,15 @@ export function useProfileForm(initialUserData = { name: "", email: "", age: "" 
     setError,
     success,
     setSuccess,
+    loading,
+    userId,
+    setUserId,
+    handleUserUpdate,
     handlePasswordChange,
   };
 }
 
-export function AccountInformationForm({ userData, setUserData }) {
+export function AccountInformationForm({ userData, setUserData, onSave, loading }) {
   return (
     <>
       <InputField
@@ -116,11 +172,20 @@ export function AccountInformationForm({ userData, setUserData }) {
         onChange={(e) => setUserData({ ...userData, age: e.target.value })}
         fullWidth
       />
+      {onSave && (
+        <Button
+          label={loading ? "Saving..." : "Save Changes"}
+          onClick={onSave}
+          disabled={loading}
+          sx={{ mt: 1 }}
+          fullWidth
+        />
+      )}
     </>
   );
 }
 
-export function ChangePasswordForm({ passwordData, setPasswordData, onSubmit }) {
+export function ChangePasswordForm({ passwordData, setPasswordData, onSubmit, loading }) {
   return (
     <>
       <InputField
@@ -139,7 +204,13 @@ export function ChangePasswordForm({ passwordData, setPasswordData, onSubmit }) 
         placeholder="Confirm new password"
         fullWidth
       />
-      <Button label="Save Changes" onClick={onSubmit} sx={{ mt: 1 }} fullWidth />
+      <Button 
+        label={loading ? "Saving..." : "Save Changes"} 
+        onClick={onSubmit} 
+        disabled={loading}
+        sx={{ mt: 1 }} 
+        fullWidth 
+      />
     </>
   );
 }

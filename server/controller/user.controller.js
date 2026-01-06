@@ -63,9 +63,10 @@ const updateUser = async (req, res) => {
   }
 };
 
-// const forgotUserPassword{
+ const resetPassword =async(req,res)=>{
+  
 
-// }
+ }
 const followUser = async (req, res) => {
   try {
     const { userId } = req.body;

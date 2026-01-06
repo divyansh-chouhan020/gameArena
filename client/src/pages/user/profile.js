@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useEffect } from "react";
-
+import { userAPI } from "@/services/api";
 import UserLayout from "@/components/user/UserLayout";
 import {
   ProfilePageContainer,
@@ -14,7 +14,7 @@ import {
 import { Box } from "@mui/material";
 
 export default function UserProfile() {
-  const { userData, setUserData, passwordData, setPasswordData, error, setError, success, setSuccess, handlePasswordChange } = useProfileForm();
+  const { userData, setUserData, passwordData, setPasswordData, error, setError, success, setSuccess, loading, userId, setUserId, handleUserUpdate, handlePasswordChange } = useProfileForm();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -22,6 +22,7 @@ export default function UserProfile() {
         const res = await userAPI.getUser();
   
         if (res?.success && res?.data) {
+          setUserId(res.data._id);
           setUserData({
             name: res.data.name || "",
             email: res.data.email || "",
@@ -30,11 +31,12 @@ export default function UserProfile() {
         }
       } catch (err) {
         console.error("Failed to fetch user profile", err);
+        setError("Failed to load profile data");
       }
     };
   
     fetchUser();
-  }, []);
+  }, [setUserId, setUserData, setError]);
 
   return (
     <>
@@ -46,10 +48,20 @@ export default function UserProfile() {
           <ProfilePageTitle>Profile Settings</ProfilePageTitle>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             <ProfileSection title="Account Information">
-              <AccountInformationForm userData={userData} setUserData={setUserData} />
+              <AccountInformationForm 
+                userData={userData} 
+                setUserData={setUserData} 
+                onSave={handleUserUpdate}
+                loading={loading}
+              />
             </ProfileSection>
             <ProfileSection title="Change Password">
-              <ChangePasswordForm passwordData={passwordData} setPasswordData={setPasswordData} onSubmit={handlePasswordChange} />
+              <ChangePasswordForm 
+                passwordData={passwordData} 
+                setPasswordData={setPasswordData} 
+                onSubmit={handlePasswordChange}
+                loading={loading}
+              />
             </ProfileSection>
           </Box>
           <ProfileToasts error={error} success={success} onErrorClose={() => setError(null)} onSuccessClose={() => setSuccess(false)} />

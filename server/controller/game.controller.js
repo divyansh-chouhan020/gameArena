@@ -42,6 +42,7 @@ const createGame = async (req, res) => {
       createdBy: req.user,
       status: "pending",
       isFree: isFree ,
+      
     });
     return res.status(200).json({
       sucess: true,
