@@ -1,39 +1,44 @@
 const jwt = require("jsonwebtoken");
-const userModel = require("../model/user.model");
+
 const protectRoute = async (req, res, next) => {
   try {
-    const token = req.cookies.token || "";
+    //  get token from Cookies or Authorization Header as a backup
+    const token = req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
+
     if (!token) {
       return res.status(401).json({
         success: false,
         message: "Token Not Found",
-        error: "Unauthorized",
       });
     }
-    console.log("token", token);
-    const payload = await jwt.verify(token, process.env.JWT_SECRET);
-    req.user = payload.id;
+
+    // Verify Token
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+
+    //  Store the whole payload so controllers can access req.user.id AND req.user.email
+    req.user = payload;
+
     next();
   } catch (err) {
-    console.log(err.message);
     return res.status(401).json({
       success: false,
       message: "Unauthorized Access",
-      error: "Unauthorized",
     });
   }
 };
+
 const authorizeRoles = (roles) => {
-  return async (req, res, next) => {
-    const user = await userModel.findById(req.user).select("role");
-    if (!roles.includes(user.role)) {
+  return (req, res, next) => {
+    //  req.user now contains 'role' from the JWT payload directly
+    // This saves a Database extra  Query, making it faster.
+    if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: "You are not authorized to access this route",
-        error: "Forbidden",
+        message: "Forbidden: Access Denied",
       });
     }
     next();
   };
 };
+
 module.exports = { protectRoute, authorizeRoles };

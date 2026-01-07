@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api/v1";
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
@@ -69,46 +68,6 @@ export const userAPI = {
       method: "GET",
     });
   },
-
-  updateUser: async (userId, userData) => {
-    return apiRequest(`/user/${userId}`, {
-      method: "PATCH",
-      data: userData,
-    });
-  },
-
-  followUser: async (userId) => {
-    return apiRequest("/user/follow", {
-      method: "POST",
-      data: { userId },
-    });
-  },
-
-  unfollowUser: async (userId) => {
-    return apiRequest("/user/unfollow", {
-      method: "POST",
-      data: { userId },
-    });
-  },
-
-  getFollowers: async () => {
-    return apiRequest("/user/followers", {
-      method: "GET",
-    });
-  },
-
-  getFollowing: async () => {
-    return apiRequest("/user/following", {
-      method: "GET",
-    });
-  },
-
-  getUserStats: async (userId = null) => {
-    return apiRequest("/user/stats", {
-      method: "GET",
-      params: userId ? { id: userId } : {},
-    });
-  },
 };
 
 // Game API
@@ -118,12 +77,6 @@ export const gameAPI = {
     return apiRequest("/game", {
       method: "POST",
       data: gameData,
-    });
-  },
-
-  getGameStats: async () => {
-    return apiRequest("/game/stats", {
-      method: "GET",
     });
   },
 
@@ -166,9 +119,9 @@ export const gameAPI = {
     });
   },
 
-  // Reject game (admin only)
-  rejectGame: async (gameId) => {
-    return apiRequest(`/game/reject/${gameId}`, {
+  // Delete game (developer only)
+  deleteGame: async (gameId) => {
+    return apiRequest(`/game/${gameId}`, {
       method: "DELETE",
     });
   },
@@ -199,3 +152,22 @@ export const reviewAPI = {
     });
   },
 };
+
+// --- START OF ADDED PAYMENT API SECTION ---
+export const paymentAPI = {
+  // Create Razorpay Order for Lifetime Subscription
+  createOrder: async () => {
+    return apiRequest("/payments/createOrder", {
+      method: "POST",
+    });
+  },
+
+  // Verify Payment Signature and Upgrade User
+  verifyPayment: async (paymentData) => {
+    return apiRequest("/payments/verifyPayment", {
+      method: "POST",
+      data: paymentData,
+    });
+  },
+};
+// --- END OF ADDED PAYMENT API SECTION ---
